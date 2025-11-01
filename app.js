@@ -1,14 +1,10 @@
 const express = require("express");
-const dotenv = require("dotenv");
+const productsRouter = require("./routes/productsRouter");
 
 const app = express();
 
-const port = process.env.PORT
+/* Routes */
 
-app.get("/", (req, res) => {
-  res.send("Hello World");
-});
+app.use("/api/v1", productsRouter);
 
-app.listen(port, () => {
-  console.log("App is running...");
-});
+module.exports = app;
