@@ -4,26 +4,25 @@ const { MongoClient } = require("mongodb");
 const dotenv = require("dotenv");
 const app = require("./app");
 
-const port = process.env.PORT || 3000;
-
 dotenv.config({
   path: "./config.env",
 });
 
-// const app = require("./app");
-async function runGetStarted() {
-  // Replace the uri string with your connection string
-  const uri = process.env.DATABASE_LOCAL;
-  const client = new MongoClient(uri);
+const port = process.env.PORT || 3000;
+const uri = process.env.DATABASE_LOCAL;
 
+const connectDB = async () => {
   try {
-    await client.connect();
+    const conn = await mongoose.connect(uri);
     console.log("Connected successfully to MongoDB! Database is running");
+    console.log(` MongoDB Connected: ${conn.connection.host}`);
   } catch (error) {
-    console.error("Error connecting to MongoDB:", error);
+    console.error(`Error: ${error.message}`);
+    process.exit(1);
   }
-}
-runGetStarted();
+};
+
+connectDB();
 
 app.listen(port, () => {
   console.log(`App is running on port ${port}...`);
