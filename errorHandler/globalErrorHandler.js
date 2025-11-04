@@ -23,5 +23,5 @@ const sendErrorProd = (err, req, res, next) => {
 
 module.exports = (err, req, res, next) => {
   if (process.env.NODE_ENV === "development") sendErrorDev(err, req, res, next);
-  else sendErrorProd(err, req, res, next);
+  else if (process.env.NODE_ENV === "production") sendErrorProd(err, req, res, next);
 };
