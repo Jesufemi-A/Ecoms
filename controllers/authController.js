@@ -124,7 +124,7 @@ exports.restrictTo =
   (...roles) =>
   (req, res, next) => {
     console.log(req.user.role);
-    if (!role.includes(req.user.role)) {
+    if (!roles.includes(req.user.role)) {
       next(new AppError("You do not have permission to this route", 403));
     } else {
       next();
