@@ -1,6 +1,7 @@
 const Product = require("./../models/productModel");
 const cloudinary = require("./../cloudinaryConfig");
 const AppError = require("../errorHandler/appError");
+const { findById } = require("../models/userModel");
 
 const uploadStreamToCloudinary = (buffer, folder) => {
   return new Promise((resolve, reject) => {
@@ -70,5 +71,28 @@ exports.createProduct = async (req, res, next) => {
     });
   } catch (error) {
     next(new AppError(error.message, 500));
+  }
+};
+
+exports.getProduct = async (req, res, next) => {
+  try {
+    const productId = req.params.id;
+
+    console.log(productId);
+    const product = await Product.findById(productId);
+
+    if (!product) {
+      return next(new AppError("product does not exist", 404));
+    }
+
+    res.status(200).json({
+      status: "success",
+      message: "product retrieved succesufully",
+      data: {
+        data: product,
+      },
+    });
+  } catch (error) {
+    next(new AppError(error.message, 404));
   }
 };
