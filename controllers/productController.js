@@ -1,7 +1,7 @@
 const Product = require("./../models/productModel");
 const cloudinary = require("./../cloudinaryConfig");
 const AppError = require("../errorHandler/appError");
-const { findById } = require("../models/userModel");
+const { findById, findByIdAndUpdate } = require("../models/userModel");
 
 const uploadStreamToCloudinary = (buffer, folder) => {
   return new Promise((resolve, reject) => {
@@ -42,9 +42,14 @@ exports.createProduct = async (req, res, next) => {
     const imageUrl = uploadResult.secure_url;
     const tempPublicId = uploadResult.public_id;
 
+    const { name, price, category, description, stock } = req.body;
+
     const newProduct = await Product.create({
-      name: req.body.name,
-      price: req.body.price,
+      name,
+      price,
+      category,
+      stock,
+      description,
       imageUrl: imageUrl,
       cloudinaryId: tempPublicId,
     });
@@ -109,6 +114,33 @@ exports.deleteProduct = async (req, res, next) => {
     }
 
     res.status(204).json({});
+  } catch (error) {
+    next(new AppError(error.message, 500));
+  }
+};
+
+exports.updateProduct = async (req, res, next) => {
+  try {
+    const productId = req.params.id;
+
+    console.log(req.params, "params.Id------ " + req.params.id);
+    const product = await Product.findByIdAndUpdate(productId, req.body, {
+      new: true,
+      runValidators: true,
+    });
+
+    // console.log(product);
+    if (!product) {
+      return next(new AppError("Product does not exist", 404));
+    }
+
+    res.status(200).json({
+      status: "success",
+      message: "Product Updated",
+      data: {
+        product,
+      },
+    });
   } catch (error) {
     next(new AppError(error.message, 500));
   }
