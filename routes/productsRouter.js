@@ -19,7 +19,10 @@ router
     productController.createProduct
   );
 
-router.route("/:id").get(productController.getProduct);
+router
+  .route("/:id")
+  .get(productController.getProduct)
+  .delete(productController.deleteProduct);
 // router.route("/:productId").patch(productController.updateProduct);
 
 module.exports = router;
