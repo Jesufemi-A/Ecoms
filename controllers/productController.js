@@ -57,7 +57,6 @@ exports.createProduct = async (req, res, next) => {
     });
     console.log("--------   " + tempPublicId, newPublicId);
 
-    // Update the database with the new, correct public ID (optional but clean)
     await Product.findByIdAndUpdate(newProduct._id, {
       cloudinaryId: `${newFolder}/${newProduct._id}_image`,
     });
@@ -94,5 +93,24 @@ exports.getProduct = async (req, res, next) => {
     });
   } catch (error) {
     next(new AppError(error.message, 404));
+  }
+};
+
+exports.deleteProduct = async (req, res, next) => {
+  try {
+    const productId = req.params.id;
+
+    let deletedProduct = await Product.findByIdAndDelete(productId);
+
+    console.log(deletedProduct);
+
+    if (!deletedProduct) {
+      return next("product does not exist", 404);
+    }
+
+    deletedProduct = undefined;
+    res.status(200).json({});
+  } catch (error) {
+    next(error.message, 404);
   }
 };
