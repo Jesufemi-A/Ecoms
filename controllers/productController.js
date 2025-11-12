@@ -100,17 +100,16 @@ exports.deleteProduct = async (req, res, next) => {
   try {
     const productId = req.params.id;
 
-    let deletedProduct = await Product.findByIdAndDelete(productId);
+    const deletedProduct = await Product.findByIdAndDelete(productId);
 
     console.log(deletedProduct);
 
     if (!deletedProduct) {
-      return next("product does not exist", 404);
+      return next(new AppError("product does not exist", 404));
     }
 
-    deletedProduct = undefined;
-    res.status(200).json({});
+    res.status(204).json({});
   } catch (error) {
-    next(error.message, 404);
+    next(new AppError(error.message, 500));
   }
 };
