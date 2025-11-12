@@ -22,7 +22,15 @@ router
 router
   .route("/:id")
   .get(productController.getProduct)
-  .delete(productController.deleteProduct);
-// router.route("/:productId").patch(productController.updateProduct);
+  .delete(
+    authcontroller.protectRoute,
+    authcontroller.restrictTo("admin"),
+    productController.deleteProduct
+  )
+  .patch(
+    authcontroller.protectRoute,
+    authcontroller.restrictTo("admin"),
+    productController.updateProduct
+  );
 
 module.exports = router;
