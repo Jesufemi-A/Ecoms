@@ -2,14 +2,27 @@ const AppError = require("../errorHandler/appError");
 const Cart = require("./../models/cartModel");
 const Product = require("./../models/productModel");
 
-// exports.getCart = async (req,res, next) => {
+exports.getCart = async (req, res, next) => {
+  try {
+    const cart = await Cart.findOne({ user: req.user._id }).populate(
+      "items.product"
+    );
 
-//     try {
-//         const cart  = await Cart.find()
+    if (!cart) {
+      next(new AppError("Cart does not exist", 404));
+    }
 
-//     }
-
-// }
+    res.status(200).json({
+      status: "success",
+      message: "Cart retrieved",
+      data: {
+        cart,
+      },
+    });
+  } catch (error) {
+    next(new AppError("Something went wrong", 500));
+  }
+};
 
 exports.addProduct = async (req, res, next) => {
   try {
@@ -54,7 +67,7 @@ exports.addProduct = async (req, res, next) => {
     cart.totalPrice += product.price * quantity;
 
     await cart.save();
-    
+
     res.status(201).json({
       status: "success",
       message: "Product added",
