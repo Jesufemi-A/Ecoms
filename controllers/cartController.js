@@ -133,3 +133,44 @@ exports.updateCart = async (req, res, next) => {
     next(new AppError(error.message, 500));
   }
 };
+
+exports.deleteProduct = async (req, res, next) => {
+  try {
+    const productId = req.params.itemId;
+
+    const userId = req.user._id;
+
+    const cart = await Cart.findOne({
+      user: userId,
+    });
+
+    const product = await Product.findById(productId);
+    if (!product) return next(new AppError("Product does not exist", 404));
+
+    if (!cart) {
+      return next(new AppError("Cart does not exist", 404));
+    }
+
+    const index = cart.items.findIndex(
+      (item) => item.product.toString() === productId
+    );
+
+    if (index === -1) return next(new AppError("Product does not exist", 404));
+
+    const existingItem = cart.items[index];
+
+    const oldProductPrice = product.price * existingItem.quantity;
+
+    cart.totalItems -= existingItem.quantity;
+
+    cart.totalPrice -= oldProductPrice;
+
+    cart.items.splice(index, 1);
+
+    await cart.save();
+
+    res.status(204).json({});
+  } catch (error) {
+    next(new AppError(error.message, 500));
+  }
+};
