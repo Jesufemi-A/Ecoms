@@ -79,3 +79,57 @@ exports.addProduct = async (req, res, next) => {
     next(new AppError(error.message, 500));
   }
 };
+
+exports.updateCart = async (req, res, next) => {
+  try {
+    const { quantity } = req.body;
+    if (!quantity || quantity < 1)
+      return next(new AppError("Quantity must be at least 1", 400));
+
+    const productId = req.params.itemId;
+
+    const userId = req.user._id;
+
+    const cart = await Cart.findOne({
+      user: userId,
+    });
+
+    if (!cart) {
+      return next(new AppError("Cart does not exist", 404));
+    }
+
+    const product = await Product.findById(productId);
+
+    if (!product) return next(new AppError("Product does not exist", 404));
+
+    let existingItem = cart.items.find(
+      (item) => item.product.toString() === productId
+    );
+
+    console.log(existingItem);
+
+    if (!existingItem) {
+      return next(new AppError("Product does not exist in the Cart", 404));
+    }
+
+    const oldProductPrice = product.price * existingItem.quantity;
+    const newProductPrice = product.price * quantity;
+
+    existingItem.quantity = quantity;
+
+    cart.totalPrice = cart.totalPrice - oldProductPrice + newProductPrice;
+
+    cart.totalItems = cart.items.reduce((acc, item) => item.quantity + acc, 0);
+
+    await cart.save();
+    res.status(200).json({
+      status: "success",
+      message: "Product updated",
+      data: {
+        cart,
+      },
+    });
+  } catch (error) {
+    next(new AppError(error.message, 500));
+  }
+};
